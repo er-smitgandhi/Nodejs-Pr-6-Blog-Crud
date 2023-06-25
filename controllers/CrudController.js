@@ -26,87 +26,87 @@ const index = async (req, res) => {
 
 const addData = async (req, res) => {
     try {
-        const { editid, name, discription } = req.body;
-        if (editid) {
-            if (req.file) {
-                if (!name || !discription) {
-                    console.log("fill all data");
-                    return res.redirect('back')
+        const { editid, name, discription, image} = req.body;
+        if (!name || !discription) {
+            console.log("fill all data");
+            return res.redirect('back')
+        }
+        else{
+            if (editid) {
+                if (req.file) {
+                        let dltimg = await crudtbl.findById(editid)
+                        if (dltimg) {
+                            fs.unlinkSync(dltimg.image);
+                        }
+                        else {
+                            console.log("image not unlink");
+                            return res.redirect('back')
+                        }
+                        let image = "";
+                        if (req.file) {
+                            image = req.file.path
+                        }
+                        let editdata = await crudtbl.findByIdAndUpdate(editid, {
+                            name: name,
+                            discription: discription,
+                            image : image
+                        })
+                        if (editdata) {
+                            console.log("Edit Done");
+                            return res.redirect('/')
+                        }
+                        else {
+                            console.log("Not Edited");
+                            return false
+                        }
                 }
                 else {
-                    let dltimg = await crudtbl.findById(editid)
-                    if (dltimg) {
-                        fs.unlinkSync(dltimg.image);
-                    }
-                    else {
-                        console.log("image not unlink");
-                        return res.redirect('back')
-                    }
                     let image = "";
-                    if (req.file) {
-                        image = req.file.path
+                    let singledata = await crudtbl.findById(editid);
+                    if(singledata){
+                        image = singledata.image;
+                        let editdata = await crudtbl.findByIdAndUpdate(editid, {
+                            name: name,
+                            discription: discription,
+                            image : image
+                        })
+                        if (editdata) {
+                            console.log("Edit Done");
+                            return res.redirect('/')
+                        }
+                        else {
+                            console.log("Not Edited");
+                            return false
+                        }
                     }
-                    let editdata = await crudtbl.findByIdAndUpdate(editid, {
-                        name: name,
-                        discription: discription,
-                        image : image
-                    })
-                    if (editdata) {
-                        console.log("Edit Done");
-                        return res.redirect('/')
-                    }
-                    else {
-                        console.log("Not Edited");
-                        return false
+                    else{
+                        console.log("record not found");
+                        return res.redirect('back')
                     }
                 }
             }
             else {
                 let image = "";
-                let singledata = await crudtbl.findById(editid);
-                if(singledata){
-                    image = singledata.image;
-                    let editdata = await crudtbl.findByIdAndUpdate(editid, {
-                        name: name,
-                        discription: discription,
-                        image : image
-                    })
-                    if (editdata) {
-                        console.log("Edit Done");
-                        return res.redirect('/')
-                    }
-                    else {
-                        console.log("Not Edited");
-                        return false
-                    }
-                }
-                else{
-                    console.log("record not found");
+                if(!image){
+                    console.log("Fill all data");
                     return res.redirect('back')
                 }
-            }
-        }
-        else {
-            let image = "";
-            if (!name || !discription || !image) {
-                console.log("Enter All Data");
-                return res.redirect('/')
-            }
-            if (req.file) {
-                image = req.file.path
-            }
-            let data = await crudtbl.create({
-                name: name,
-                discription: discription,
-                image: image
-            })
-            if (data) {
-                console.log("Data Successfully Add");
-                return res.redirect('back');
-            }
-            else {
-                console.log(err);
-                return res.redirect('back');
+                if (req.file) {
+                    image = req.file.path
+                }
+                let data = await crudtbl.create({
+                    name: name,
+                    discription: discription,
+                    image: image
+                })
+                if (data) {
+                    console.log("Data Successfully Add");
+                    return res.redirect('back');
+                }
+                else {
+                    console.log(err);
+                    return res.redirect('back');
+                }
             }
         }
     }
