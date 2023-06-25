@@ -87,11 +87,11 @@ const addData = async (req, res) => {
             }
         }
         else {
-            if (!name || !discription) {
+            let image = "";
+            if (!name || !discription || !image) {
                 console.log("Enter All Data");
                 return res.redirect('/')
             }
-            let image = "";
             if (req.file) {
                 image = req.file.path
             }
